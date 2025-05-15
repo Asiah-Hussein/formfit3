@@ -1,4 +1,4 @@
-package com.asiah.formfit.model;
+package com.asiah.formfit.data.models;
 
 import java.util.Arrays;
 
