@@ -1,4 +1,4 @@
-package com.asiah.formfit.model;
+package com.asiah.formfit.data;
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ public class User {
 
     public User() {
         // Default constructor
+        this.joinDate = new Date();
     }
 
     public User(String username, String email) {

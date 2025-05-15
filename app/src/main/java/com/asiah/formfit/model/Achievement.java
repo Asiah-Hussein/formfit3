@@ -1,4 +1,4 @@
-package com.asiah.formfit.model;
+package com.asiah.formfit.data;
 
 import java.util.Date;
 
@@ -10,7 +10,8 @@ public class Achievement {
     private Date date;
 
     public Achievement() {
-        // Default constructor
+        // Default constructor with current date
+        this.date = new Date();
     }
 
     public Achievement(long userId, String name, String description) {
@@ -51,5 +52,13 @@ public class Achievement {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

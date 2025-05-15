@@ -1,4 +1,4 @@
-package com.asiah.formfit.model;
+package com.asiah.formfit.data;
 
 import java.util.Date;
 
@@ -15,6 +15,8 @@ public class Exercise {
 
     public Exercise() {
         // Default constructor
+        this.timestamp = new Date();
+        this.synced = false;
     }
 
     public Exercise(long userId, String name, int duration, float formAccuracy, int reps, int calories) {

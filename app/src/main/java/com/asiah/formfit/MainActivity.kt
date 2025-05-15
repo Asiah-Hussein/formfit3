@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 // Make sure you're using the correct package path for LoginActivity
                 val intent = Intent(this, com.asiah.formfit.main.LoginActivity::class.java)
+
                 // Log before starting activity
                 Log.d(TAG, "Navigating to LoginActivity")
                 startActivity(intent)

@@ -1,4 +1,4 @@
-package com.asiah.formfit;
+package com.asiah.formfit.main;
 
 import android.Manifest;
 import android.content.Intent;
@@ -21,10 +21,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.asiah.formfit.R;
 import com.asiah.formfit.data.Achievement;
 import com.asiah.formfit.data.DataManager;
 import com.asiah.formfit.data.Exercise;
-import com.asiah.formfit.data.models.MotionPattern;
+import com.asiah.formfit.model.MotionPattern;
 import com.asiah.formfit.ml.PoseAnalyzer;
 import com.asiah.formfit.utils.PreferenceManager;
 import com.asiah.formfit.wearable.SensorDataListener;
