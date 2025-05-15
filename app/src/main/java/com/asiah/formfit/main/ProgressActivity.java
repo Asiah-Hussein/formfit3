@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/asiah/formfit/main/ProgressActivity.java
 package com.asiah.formfit.main;
 
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.asiah.formfit.R; // Correct import for R class
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;

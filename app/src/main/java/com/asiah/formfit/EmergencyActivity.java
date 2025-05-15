@@ -1,25 +1,54 @@
-// File: app/src/main/java/com/asiah/formfit/EmergencyActivity.java
 package com.asiah.formfit;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.asiah.formfit.main.LoginActivity;
 
 public class EmergencyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        // Simple text view
-        TextView tv = new TextView(this);
-        tv.setPadding(50, 100, 50, 50);
-        tv.setTextSize(18);
-        tv.setText("FormFit: AI-Powered Exercise Form Analysis\n\n" +
-                "By: Asiah Abdisalam Hussein\n\n" +
-                "Module: CMP6213 Mobile and Wearable Application Development\n\n" +
-                "This prototype demonstrates an application that uses AI to analyze exercise form and provide feedback to users in real-time.\n\n" +
-                "The prototype implementation encountered technical issues with package structure and class references that could not be resolved before the submission deadline.");
+        // Try to launch the login activity directly
+        try {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish(); // Close this activity
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        setContentView(tv);
+        // If that fails, set up a simple UI with a button to try again
+        TextView tvAppName = findViewById(R.id.tvAppName);
+        TextView tvAppTagline = findViewById(R.id.tvAppTagline);
+
+        if (tvAppName != null && tvAppTagline != null) {
+            tvAppName.setText("FormFit");
+            tvAppTagline.setText("Some components couldn't be loaded.\nTap to try again.");
+
+            View.OnClickListener retryListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        Intent intent = new Intent(EmergencyActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } catch (Exception e) {
+                        Toast.makeText(EmergencyActivity.this, "Still unable to launch. Please check errors.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+
+            tvAppName.setOnClickListener(retryListener);
+            tvAppTagline.setOnClickListener(retryListener);
+        }
     }
 }

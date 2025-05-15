@@ -1,4 +1,5 @@
-package com.asiah.formfit.data.models;
+// File: app/src/main/java/com/asiah/formfit/model/MotionPattern.java
+package com.asiah.formfit.model;
 
 import java.util.Arrays;
 

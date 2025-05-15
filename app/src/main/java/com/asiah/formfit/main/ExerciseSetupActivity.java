@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/asiah/formfit/main/ExerciseSetupActivity.java
 package com.asiah.formfit.main;
 
 import android.Manifest;
@@ -14,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.asiah.formfit.R; // Correct import for R class
 
 /**
  * ExerciseSetupActivity handles camera preview and prepares for exercise recording.
@@ -96,7 +99,7 @@ public class ExerciseSetupActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setupCamera();
             } else {
-                Toast.makeText(this, "Camera permission is required for exercise analysis", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.camera_permission_required), Toast.LENGTH_LONG).show();
                 finish(); // Close activity if permission is denied
             }
         }

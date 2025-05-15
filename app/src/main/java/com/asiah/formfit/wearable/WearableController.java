@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/asiah/formfit/wearable/WearableControllerImpl.java
 package com.asiah.formfit.wearable;
 
 import android.content.Context;
@@ -29,15 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * WearableController manages communication with wearable devices
- * for receiving sensor data and sending haptic feedback
+ * WearableControllerImpl manages communication with wearable devices
+ * for receiving sensor data and sending haptic feedback.
+ * (Renamed from WearableController to avoid duplicate class name)
  */
-public class WearableController implements
+public class WearableControllerImpl implements
         DataClient.OnDataChangedListener,
         MessageClient.OnMessageReceivedListener,
         CapabilityClient.OnCapabilityChangedListener {
 
-    private static final String TAG = "WearableController";
+    private static final String TAG = "WearableControllerImpl";
 
     // Path for sensor data
     private static final String SENSOR_DATA_PATH = "/sensor-data";
@@ -73,7 +75,7 @@ public class WearableController implements
     /**
      * Constructor initializes wearable connections
      */
-    public WearableController(Context context) {
+    public WearableControllerImpl(Context context) {
         this.context = context;
 
         // Initialize Wearable API clients

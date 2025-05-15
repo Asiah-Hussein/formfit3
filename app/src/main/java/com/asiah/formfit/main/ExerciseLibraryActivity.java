@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/asiah/formfit/main/ExerciseLibraryActivity.java
 package com.asiah.formfit.main;
 
 import android.content.Intent;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.asiah.formfit.R; // Correct import for R class
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;

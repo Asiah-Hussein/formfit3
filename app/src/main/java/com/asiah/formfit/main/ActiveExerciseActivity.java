@@ -1,10 +1,9 @@
+// File: app/src/main/java/com/asiah/formfit/main/ActiveExerciseActivity.java
 package com.asiah.formfit.main;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -21,20 +20,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.asiah.formfit.R;
+import com.asiah.formfit.R; // Correct import for R class
 import com.asiah.formfit.data.Achievement;
 import com.asiah.formfit.data.DataManager;
 import com.asiah.formfit.data.Exercise;
-import com.asiah.formfit.model.MotionPattern;
+import com.asiah.formfit.model.MotionPattern; // Fixed import path
 import com.asiah.formfit.ml.PoseAnalyzer;
 import com.asiah.formfit.utils.PreferenceManager;
 import com.asiah.formfit.wearable.SensorDataListener;
 import com.asiah.formfit.wearable.WearableController;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.mlkit.vision.common.InputImage;
+import com.google.android.gms.vision.CameraSource;
 import com.google.mlkit.vision.pose.Pose;
-import com.google.mlkit.vision.pose.PoseLandmark;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -84,7 +80,7 @@ public class ActiveExerciseActivity extends AppCompatActivity implements SensorD
     private Vibrator vibrator;
 
     // Camera handling
-    private com.google.android.gms.vision.CameraSource cameraSource;
+    private CameraSource cameraSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,8 +214,8 @@ public class ActiveExerciseActivity extends AppCompatActivity implements SensorD
 
         try {
             // Configure camera source
-            cameraSource = new com.google.android.gms.vision.CameraSource.Builder(this, null)
-                    .setFacing(com.google.android.gms.vision.CameraSource.CAMERA_FACING_FRONT)
+            cameraSource = new CameraSource.Builder(this, null)
+                    .setFacing(CameraSource.CAMERA_FACING_FRONT)
                     .setRequestedPreviewSize(640, 480)
                     .setRequestedFps(30.0f)
                     .build();
