@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "123456789012",
+    "firebase_url": "https://formfit-placeholder.firebaseio.com",
+    "project_id": "formfit-placeholder",
+    "storage_bucket": "formfit-placeholder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789012:android:0123456789abcdef",
+        "android_client_info": {
+          "package_name": "com.asiah.formfit"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

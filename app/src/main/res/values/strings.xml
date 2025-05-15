@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FormFit</string>
+    <string name="app_tagline">AI-Powered Exercise Form Analysis</string>
+
+    <!-- Login Screen -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or_sign_in_with">Or sign in with</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_in_with_facebook">Sign in with Facebook</string>
+    <string name="sign_in_with_apple">Sign in with Apple</string>
+    <string name="app_logo">App Logo</string>
+
+    <!-- Bottom Navigation -->
+    <string name="home">Home</string>
+    <string name="exercises">Exercises</string>
+    <string name="progress">Progress</string>
+    <string name="settings">Settings</string>
+
+    <!-- Exercise Setup -->
+    <string name="exercise_setup">Exercise Setup</string>
+    <string name="start_exercise">Start Exercise</string>
+    <string name="camera_preview">Camera Preview</string>
+    <string name="position_yourself">Position yourself in the frame</string>
+    <string name="menu">Menu</string>
+
+    <!-- Active Exercise -->
+    <string name="exercise_name">Exercise</string>
+    <string name="form_accuracy">Form Accuracy</string>
+    <string name="calories">Calories</string>
+    <string name="reps">Reps</string>
+    <string name="close">Close</string>
+    <string name="maintain_proper_form">Maintain proper form</string>
+    <string name="pose_detection_overlay">Pose Detection Overlay</string>
+
+    <!-- Exercise Library -->
+    <string name="exercise_library">Exercise Library</string>
+    <string name="search_exercises">Search exercises</string>
+    <string name="all">All</string>
+    <string name="upper_body">Upper Body</string>
+    <string name="lower_body">Lower Body</string>
+    <string name="core">Core</string>
+    <string name="cardio">Cardio</string>
+    <string name="exercise_icon">Exercise Icon</string>
+
+    <!-- Progress Screen -->
+    <string name="exercise_this_week">Exercise This Week</string>
+    <string name="perfect_form">Perfect Form</string>
+    <string name="day_streak">Day Streak</string>
+    <string name="form_accuracy_over_time">Form Accuracy Over Time</string>
+    <string name="achievements">Achievements</string>
+    <string name="achievement_icon">Achievement Icon</string>
+
+    <!-- Exercise Types -->
+    <string name="squats">Squats</string>
+    <string name="pushups">Push-ups</string>
+    <string name="lunges">Lunges</string>
+    <string name="planks">Planks</string>
+    <string name="burpees">Burpees</string>
+    <string name="jumping_jacks">Jumping Jacks</string>
+
+    <!-- Feedback Messages -->
+    <string name="good_form">Good form! Keep it up.</string>
+    <string name="keep_back_straight">Keep your back straight.</string>
+    <string name="knees_behind_toes">Keep your knees behind your toes.</string>
+    <string name="go_deeper">Try to go deeper.</string>
+    <string name="complete_range_of_motion">Complete the full range of motion.</string>
+    <string name="balance_properly">Focus on maintaining balance.</string>
+
+    <!-- Permissions -->
+    <string name="camera_permission_required">Camera permission is required for exercise analysis.</string>
+</resources>
