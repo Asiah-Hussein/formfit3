@@ -1,257 +1,106 @@
-package com.asiah.formfit.data;
-
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+// File: app/src/main/java/com/asiah/formfit/data/FirebaseHelper.java
+// Add these methods to your existing FirebaseHelper class
 
 /**
- * Improved FirebaseHelper implementation for better reliability and error handling
+ * Load user exercises from Firebase
  */
-public class FirebaseHelper {
-
-    private static final String TAG = "FirebaseHelper";
-
-    // Firebase references
-    private FirebaseAuth firebaseAuth;
-    private FirebaseDatabase firebaseDatabase;
-
-    // Database references
-    private DatabaseReference usersRef;
-    private DatabaseReference exercisesRef;
-    private DatabaseReference achievementsRef;
-
-    // Local database helper for syncing
-    private ExerciseDbHelper dbHelper;
-
-    // Synchronization listener
-    public interface SyncListener {
-        void onSyncComplete();
-        void onSyncFailed(String error);
-    }
-
-    /**
-     * Initialize the Firebase helper
-     */
-    public FirebaseHelper(android.content.Context context) {
-        try {
-            // Initialize Firebase components
-            firebaseAuth = FirebaseAuth.getInstance();
-            firebaseDatabase = FirebaseDatabase.getInstance();
-
-            // Enable disk persistence for offline capability
-            firebaseDatabase.setPersistenceEnabled(true);
-
-            // Get database references
-            usersRef = firebaseDatabase.getReference("users");
-            exercisesRef = firebaseDatabase.getReference("exercises");
-            achievementsRef = firebaseDatabase.getReference("achievements");
-
-            // Initialize local database helper
-            dbHelper = new ExerciseDbHelper(context);
-
-            Log.d(TAG, "FirebaseHelper initialized successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Error initializing FirebaseHelper: " + e.getMessage());
+public void loadUserExercises(final FirebaseDataListener<List<Exercise>> listener) {
+    // Get current Firebase user
+    String firebaseUserId = getCurrentUserId();
+    if (firebaseUserId == null) {
+        if (listener != null) {
+            listener.onDataFailed("User not authenticated");
         }
+        return;
     }
 
-    /**
-     * Get the current Firebase user ID
-     */
-    public String getCurrentUserId() {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        return user != null ? user.getUid() : null;
-    }
+    // Get exercises from Firebase
+    exercisesRef.orderByChild("userId").equalTo(firebaseUserId)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    List<Exercise> exercises = new ArrayList<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        try {
+                            // Parse exercise data
+                            String name = snapshot.child("name").getValue(String.class);
+                            int duration = snapshot.child("duration").getValue(Integer.class);
+                            float formAccuracy = snapshot.child("formAccuracy").getValue(Float.class);
+                            int reps = snapshot.child("reps").getValue(Integer.class);
+                            int calories = snapshot.child("calories").getValue(Integer.class);
+                            Long timestamp = snapshot.child("timestamp").getValue(Long.class);
 
-    /**
-     * Sign in with email and password
-     */
-    public void signInWithEmailPassword(String email, String password, final AuthListener listener) {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
-                    if (listener != null) {
-                        listener.onAuthSuccess(authResult.getUser());
+                            // Create exercise
+                            Exercise exercise = new Exercise();
+                            exercise.setName(name);
+                            exercise.setDuration(duration);
+                            exercise.setFormAccuracy(formAccuracy);
+                            exercise.setReps(reps);
+                            exercise.setCalories(calories);
+                            exercise.setTimestamp(new Date(timestamp));
+                            exercise.setSynced(true);
+
+                            exercises.add(exercise);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing exercise data: " + e.getMessage());
+                        }
                     }
-                })
-                .addOnFailureListener(e -> {
-                    if (listener != null) {
-                        listener.onAuthFailed(e.getMessage());
-                    }
-                });
-    }
 
-    /**
-     * Create a new user with email and password
-     */
-    public void createUserWithEmailPassword(String email, String password, final AuthListener listener) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
                     if (listener != null) {
-                        listener.onAuthSuccess(authResult.getUser());
+                        listener.onDataLoaded(exercises);
                     }
-                })
-                .addOnFailureListener(e -> {
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
                     if (listener != null) {
-                        listener.onAuthFailed(e.getMessage());
+                        listener.onDataFailed(databaseError.getMessage());
                     }
-                });
-    }
+                }
+            });
+}
 
-    /**
-     * Sign out the current user
-     */
-    public void signOut() {
-        firebaseAuth.signOut();
-    }
+/**
+ * Sync all unsynced exercises to Firebase
+ */
+public void syncUnsyncedExercises(final SyncListener listener) {
+    // Get unsynced exercises from local database
+    List<Exercise> unsyncedExercises = dbHelper.getUnsyncedExercises();
 
-    /**
-     * Sync a user to Firebase
-     */
-    public void syncUser(User user, final SyncListener listener) {
-        // Get current Firebase user
-        String firebaseUserId = getCurrentUserId();
-        if (firebaseUserId == null) {
-            if (listener != null) {
-                listener.onSyncFailed("User not authenticated");
-            }
-            return;
+    if (unsyncedExercises.isEmpty()) {
+        // No unsynced exercises
+        if (listener != null) {
+            listener.onSyncComplete();
         }
+        return;
+    }
 
-        // Create user data map
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("username", user.getUsername());
-        userData.put("email", user.getEmail());
-        userData.put("joinDate", user.getJoinDate().getTime()); // Store as timestamp
-
-        // Update user data in Firebase
-        usersRef.child(firebaseUserId).updateChildren(userData)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "User data synced successfully");
+    // Sync each exercise
+    final int[] syncCount = {0};
+    for (final Exercise exercise : unsyncedExercises) {
+        syncExercise(exercise, new SyncListener() {
+            @Override
+            public void onSyncComplete() {
+                syncCount[0]++;
+                if (syncCount[0] == unsyncedExercises.size()) {
+                    // All exercises synced
                     if (listener != null) {
                         listener.onSyncComplete();
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to sync user data: " + e.getMessage());
-                    if (listener != null) {
-                        listener.onSyncFailed(e.getMessage());
-                    }
-                });
-    }
-
-    /**
-     * Sync an exercise to Firebase
-     */
-    public void syncExercise(final Exercise exercise, final SyncListener listener) {
-        // Get current Firebase user
-        String firebaseUserId = getCurrentUserId();
-        if (firebaseUserId == null) {
-            if (listener != null) {
-                listener.onSyncFailed("User not authenticated");
+                }
             }
-            return;
-        }
 
-        // Create exercise data map
-        Map<String, Object> exerciseData = new HashMap<>();
-        exerciseData.put("userId", firebaseUserId); // Use Firebase user ID
-        exerciseData.put("name", exercise.getName());
-        exerciseData.put("duration", exercise.getDuration());
-        exerciseData.put("formAccuracy", exercise.getFormAccuracy());
-        exerciseData.put("reps", exercise.getReps());
-        exerciseData.put("calories", exercise.getCalories());
-        exerciseData.put("timestamp", exercise.getTimestamp().getTime()); // Store as timestamp
-
-        // Generate a new key for the exercise
-        String key = exercisesRef.push().getKey();
-
-        // Update exercise data in Firebase
-        exercisesRef.child(key).setValue(exerciseData)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Exercise data synced successfully");
-
-                    // Mark as synced in local database
-                    dbHelper.markExerciseSynced(exercise.getId());
-
+            @Override
+            public void onSyncFailed(String error) {
+                // Continue syncing other exercises
+                syncCount[0]++;
+                if (syncCount[0] == unsyncedExercises.size()) {
+                    // All exercises processed
                     if (listener != null) {
-                        listener.onSyncComplete();
+                        listener.onSyncFailed("Some exercises failed to sync");
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to sync exercise data: " + e.getMessage());
-                    if (listener != null) {
-                        listener.onSyncFailed(e.getMessage());
-                    }
-                });
-    }
-
-    /**
-     * Sync an achievement to Firebase
-     */
-    public void syncAchievement(Achievement achievement, final SyncListener listener) {
-        // Get current Firebase user
-        String firebaseUserId = getCurrentUserId();
-        if (firebaseUserId == null) {
-            if (listener != null) {
-                listener.onSyncFailed("User not authenticated");
+                }
             }
-            return;
-        }
-
-        // Create achievement data map
-        Map<String, Object> achievementData = new HashMap<>();
-        achievementData.put("userId", firebaseUserId); // Use Firebase user ID
-        achievementData.put("name", achievement.getName());
-        achievementData.put("description", achievement.getDescription());
-        achievementData.put("date", achievement.getDate().getTime()); // Store as timestamp
-
-        // Generate a new key for the achievement
-        String key = achievementsRef.push().getKey();
-
-        // Update achievement data in Firebase
-        achievementsRef.child(key).setValue(achievementData)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Achievement data synced successfully");
-                    if (listener != null) {
-                        listener.onSyncComplete();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to sync achievement data: " + e.getMessage());
-                    if (listener != null) {
-                        listener.onSyncFailed(e.getMessage());
-                    }
-                });
-    }
-
-    /**
-     * Auth listener for Firebase authentication events
-     */
-    public interface AuthListener {
-        void onAuthSuccess(FirebaseUser user);
-        void onAuthFailed(String error);
-    }
-
-    /**
-     * Firebase data listener
-     */
-    public interface FirebaseDataListener<T> {
-        void onDataLoaded(T data);
-        void onDataFailed(String error);
+        });
     }
 }

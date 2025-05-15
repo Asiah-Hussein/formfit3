@@ -1,8 +1,14 @@
+// File: app/src/main/java/com/asiah/formfit/data/Exercise.java
 package com.asiah.formfit.data;
 
 import java.util.Date;
 
 public class Exercise {
+    // Add these missing constants
+    public static final int DIFFICULTY_BEGINNER = 1;
+    public static final int DIFFICULTY_INTERMEDIATE = 2;
+    public static final int DIFFICULTY_ADVANCED = 3;
+
     private long id;
     private long userId;
     private String name;
@@ -12,6 +18,10 @@ public class Exercise {
     private int calories;
     private Date timestamp;
     private boolean synced;
+    // Add these missing fields
+    private int difficulty;
+    private int iconResourceId;
+    private String category;
 
     public Exercise() {
         // Default constructor
@@ -28,6 +38,28 @@ public class Exercise {
         this.calories = calories;
         this.timestamp = new Date(); // Set to current date by default
         this.synced = false; // Not synced by default
+    }
+
+    // Constructor for exercise library items
+    public Exercise(String name, String category, String difficulty, int iconResourceId) {
+        this.name = name;
+        this.category = category;
+        this.setDifficultyFromString(difficulty);
+        this.iconResourceId = iconResourceId;
+        this.timestamp = new Date();
+    }
+
+    // Helper method to set difficulty from string
+    private void setDifficultyFromString(String difficulty) {
+        if ("Beginner".equals(difficulty)) {
+            this.difficulty = DIFFICULTY_BEGINNER;
+        } else if ("Intermediate".equals(difficulty)) {
+            this.difficulty = DIFFICULTY_INTERMEDIATE;
+        } else if ("Advanced".equals(difficulty)) {
+            this.difficulty = DIFFICULTY_ADVANCED;
+        } else {
+            this.difficulty = DIFFICULTY_BEGINNER; // Default
+        }
     }
 
     // Getters and setters
@@ -101,5 +133,30 @@ public class Exercise {
 
     public void setSynced(boolean synced) {
         this.synced = synced;
+    }
+
+    // Add these getters and setters for the new fields
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getIconResourceId() {
+        return iconResourceId;
+    }
+
+    public void setIconResourceId(int iconResourceId) {
+        this.iconResourceId = iconResourceId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

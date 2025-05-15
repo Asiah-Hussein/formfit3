@@ -1,594 +1,305 @@
-// File: app/src/main/java/com/asiah/formfit/main/ActiveExerciseActivity.java
+// File: app/src/main/java/com/asiah/formfit/main/ExerciseLibraryActivity.java
 package com.asiah.formfit.main;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Vibrator;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.asiah.formfit.R; // Correct import for R class
-import com.asiah.formfit.data.Achievement;
-import com.asiah.formfit.data.DataManager;
 import com.asiah.formfit.data.Exercise;
-import com.asiah.formfit.model.MotionPattern; // Fixed import path
-import com.asiah.formfit.ml.PoseAnalyzer;
-import com.asiah.formfit.utils.PreferenceManager;
-import com.asiah.formfit.wearable.SensorDataListener;
-import com.asiah.formfit.wearable.WearableController;
-import com.google.android.gms.vision.CameraSource;
-import com.google.mlkit.vision.pose.Pose;
+import com.google.android.material.tabs.TabLayout;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Improved ActiveExerciseActivity with real ML Kit implementation
- * This activity handles the real-time exercise recording, form analysis,
- * and feedback to the user during an active workout session.
+ * ExerciseLibraryActivity displays the available exercises categorized by body parts.
+ * Users can browse, search, and select exercises to start their workouts.
  */
-public class ActiveExerciseActivity extends AppCompatActivity implements SensorDataListener, PoseAnalyzer.PoseListener {
+public class ExerciseLibraryActivity extends AppCompatActivity {
 
-    private static final String TAG = "ActiveExerciseActivity";
-    private static final int CAMERA_PERMISSION_REQUEST = 100;
+    private RecyclerView rvExercises;
+    private EditText etSearch;
+    private TabLayout tabLayout;
+    private ImageButton btnHome, btnExercises, btnProgress, btnSettings;
 
-    // UI components
-    private TextView tvExerciseName, tvFormAccuracy, tvCaloriesBurned, tvRepCount, tvFormCorrection;
-    private ImageButton btnHome, btnExercises, btnProgress, btnSettings, btnClose;
-    private SurfaceView surfaceView;
-
-    // Exercise tracking variables
-    private int repCount = 0;
-    private int caloriesBurned = 0;
-    private int formAccuracy = 95; // Starting with high accuracy for demo
-    private String exerciseName;
-    private int exerciseType = PoseAnalyzer.ExerciseFormResult.EXERCISE_SQUAT; // Default
-    private int exerciseDuration = 0; // In seconds
-    private boolean exerciseActive = false;
-
-    // Handlers and runnables for updates
-    private Handler handler;
-    private Runnable exerciseUpdateRunnable;
-    private Runnable durationRunnable;
-
-    // Motion analysis components
-    private PoseAnalyzer poseAnalyzer;
-    private List<PoseAnalyzer.ExerciseFormResult> formResults;
-
-    // Wearable integration
-    private WearableController wearableController;
-    private boolean wearableConnected = false;
-
-    // Data manager for storage
-    private DataManager dataManager;
-
-    // Vibration for haptic feedback
-    private Vibrator vibrator;
-
-    // Camera handling
-    private CameraSource cameraSource;
+    private ExerciseAdapter exerciseAdapter;
+    private List<Exercise> allExercises;
+    private List<Exercise> filteredExercises;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_active_exercise);
-
-        // Get passed exercise data
-        exerciseName = getIntent().getStringExtra("EXERCISE_NAME");
-        exerciseType = getIntent().getIntExtra("EXERCISE_TYPE", PoseAnalyzer.ExerciseFormResult.EXERCISE_SQUAT);
-
-        if (exerciseName == null) {
-            exerciseName = "Exercise"; // Default if not specified
-        }
+        setContentView(R.layout.activity_exercise_library);
 
         // Initialize UI components
-        initializeViews();
-
-        // Set exercise name
-        tvExerciseName.setText(exerciseName + " Form");
-
-        // Get vibrator service for haptic feedback
-        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-
-        // Initialize motion analysis
-        poseAnalyzer = new PoseAnalyzer(this);
-        poseAnalyzer.setPoseListener(this);
-        formResults = new ArrayList<>();
-
-        // Initialize wearable controller
-        wearableController = new WearableController(this);
-        wearableController.setSensorDataListener(this);
-
-        // Initialize data manager
-        dataManager = DataManager.getInstance(this);
-
-        // Set up navigation
-        setupNavigationListeners();
-
-        // Check for camera permission
-        if (hasCameraPermission()) {
-            setupCamera();
-        } else {
-            requestCameraPermission();
-        }
-
-        // Initialize handlers
-        handler = new Handler();
-
-        // Start the exercise
-        startExercise();
-    }
-
-    private void initializeViews() {
-        tvExerciseName = findViewById(R.id.tvExerciseName);
-        tvFormAccuracy = findViewById(R.id.tvFormAccuracy);
-        tvCaloriesBurned = findViewById(R.id.tvCaloriesBurned);
-        tvRepCount = findViewById(R.id.tvRepCount);
-        tvFormCorrection = findViewById(R.id.tvFormCorrection);
+        rvExercises = findViewById(R.id.rvExercises);
+        etSearch = findViewById(R.id.etSearch);
+        tabLayout = findViewById(R.id.tabLayout);
         btnHome = findViewById(R.id.btnHome);
         btnExercises = findViewById(R.id.btnExercises);
         btnProgress = findViewById(R.id.btnProgress);
         btnSettings = findViewById(R.id.btnSettings);
-        btnClose = findViewById(R.id.btnClose);
-        surfaceView = findViewById(R.id.cameraPreviewContainer);
+
+        // Generate sample exercises
+        generateSampleExercises();
+
+        // Set up RecyclerView
+        setupRecyclerView();
+
+        // Set up search functionality
+        setupSearch();
+
+        // Set up tab selection
+        setupTabs();
+
+        // Set up navigation
+        setupNavigationListeners();
+    }
+
+    private void generateSampleExercises() {
+        // In a real app, this would load from a database
+        allExercises = new ArrayList<>();
+
+        // Lower Body Exercises
+        allExercises.add(new Exercise("Squat", "Lower Body", "Beginner", R.drawable.ic_squat));
+        allExercises.add(new Exercise("Lunges", "Lower Body", "Beginner", R.drawable.ic_lunges));
+        allExercises.add(new Exercise("Deadlift", "Lower Body", "Intermediate", R.drawable.ic_deadlift));
+        allExercises.add(new Exercise("Leg Press", "Lower Body", "Beginner", R.drawable.ic_leg_press));
+
+        // Upper Body Exercises
+        allExercises.add(new Exercise("Push-up", "Upper Body", "Beginner", R.drawable.ic_pushup));
+        allExercises.add(new Exercise("Pull-up", "Upper Body", "Intermediate", R.drawable.ic_pullup));
+        allExercises.add(new Exercise("Bench Press", "Upper Body", "Intermediate", R.drawable.ic_bench_press));
+        allExercises.add(new Exercise("Shoulder Press", "Upper Body", "Intermediate", R.drawable.ic_shoulder_press));
+
+        // Core Exercises
+        allExercises.add(new Exercise("Plank", "Core", "Beginner", R.drawable.ic_plank));
+        allExercises.add(new Exercise("Crunches", "Core", "Beginner", R.drawable.ic_crunches));
+        allExercises.add(new Exercise("Russian Twist", "Core", "Intermediate", R.drawable.ic_russian_twist));
+
+        // Cardio Exercises
+        allExercises.add(new Exercise("Jumping Jacks", "Cardio", "Beginner", R.drawable.ic_jumping_jacks));
+        allExercises.add(new Exercise("Burpees", "Cardio", "Advanced", R.drawable.ic_burpees));
+        allExercises.add(new Exercise("Mountain Climbers", "Cardio", "Intermediate", R.drawable.ic_mountain_climbers));
+
+        // Initialize filtered list with all exercises
+        filteredExercises = new ArrayList<>(allExercises);
+    }
+
+    private void setupRecyclerView() {
+        exerciseAdapter = new ExerciseAdapter(filteredExercises);
+        rvExercises.setAdapter(exerciseAdapter);
+        rvExercises.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void setupSearch() {
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Not needed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Filter exercises based on search query
+                filterExercises(s.toString(), getSelectedCategory());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Not needed
+            }
+        });
+    }
+
+    private void setupTabs() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                // Filter exercises based on selected category
+                filterExercises(etSearch.getText().toString(), getSelectedCategory());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // Not needed
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // Not needed
+            }
+        });
+    }
+
+    private String getSelectedCategory() {
+        int selectedTabPosition = tabLayout.getSelectedTabPosition();
+        switch (selectedTabPosition) {
+            case 0: return "All"; // All exercises
+            case 1: return "Upper Body";
+            case 2: return "Lower Body";
+            case 3: return "Core";
+            case 4: return "Cardio";
+            default: return "All";
+        }
+    }
+
+    private void filterExercises(String query, String category) {
+        filteredExercises.clear();
+
+        for (Exercise exercise : allExercises) {
+            boolean matchesQuery = query.isEmpty() ||
+                    exercise.getName().toLowerCase().contains(query.toLowerCase());
+
+            boolean matchesCategory = category.equals("All") ||
+                    exercise.getCategory().equals(category);
+
+            if (matchesQuery && matchesCategory) {
+                filteredExercises.add(exercise);
+            }
+        }
+
+        exerciseAdapter.notifyDataSetChanged();
     }
 
     private void setupNavigationListeners() {
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishExercise();
                 navigateToHome();
             }
         });
 
-        btnExercises.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finishExercise();
-                navigateToExerciseLibrary();
-            }
-        });
+        // Exercises button is already active
 
         btnProgress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishExercise();
                 navigateToProgress();
             }
         });
 
-        btnClose.setOnClickListener(new View.OnClickListener() {
+        btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishExercise();
-                finish();
+                // For prototype, we won't implement settings
             }
         });
     }
 
-    private boolean hasCameraPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestCameraPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.CAMERA},
-                CAMERA_PERMISSION_REQUEST
-        );
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == CAMERA_PERMISSION_REQUEST) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setupCamera();
-            } else {
-                Toast.makeText(this, getString(R.string.camera_permission_required), Toast.LENGTH_LONG).show();
-                finish(); // Close activity if permission is denied
-            }
-        }
-    }
-
-    private void setupCamera() {
-        // In this implementation, we would set up the camera with ML Kit
-        // For prototype purposes, we'll simulate the camera setup
-
-        try {
-            // Configure camera source
-            cameraSource = new CameraSource.Builder(this, null)
-                    .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                    .setRequestedPreviewSize(640, 480)
-                    .setRequestedFps(30.0f)
-                    .build();
-
-            // Set up surface holder callback
-            surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-                @Override
-                public void surfaceCreated(SurfaceHolder holder) {
-                    try {
-                        if (hasCameraPermission()) {
-                            cameraSource.start(holder);
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error starting camera: " + e.getMessage());
-                    }
-                }
-
-                @Override
-                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                    // Not needed
-                }
-
-                @Override
-                public void surfaceDestroyed(SurfaceHolder holder) {
-                    cameraSource.stop();
-                }
-            });
-
-            // Add frame processor
-            // In a complete implementation, this would process each frame with ML Kit
-            // For prototype, we'll simulate with the Handler
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up camera: " + e.getMessage());
-        }
-    }
-
-    private void startExercise() {
-        // Start exercise tracking
-        exerciseActive = true;
-
-        // Start duration timer
-        startDurationTimer();
-
-        // For prototype, simulate exercise progress
-        simulateExerciseProgress();
-
-        // Start wearable monitoring
-        wearableController.startListening();
-
-        // Display initial form guidance
-        tvFormCorrection.setText(getString(R.string.maintain_proper_form));
-    }
-
-    private void finishExercise() {
-        // Stop exercise tracking
-        exerciseActive = false;
-
-        // Stop handlers
-        if (handler != null) {
-            if (exerciseUpdateRunnable != null) {
-                handler.removeCallbacks(exerciseUpdateRunnable);
-            }
-            if (durationRunnable != null) {
-                handler.removeCallbacks(durationRunnable);
-            }
-        }
-
-        // Stop wearable monitoring
-        wearableController.stopListening();
-
-        // Save exercise data to database
-        saveExerciseData();
-    }
-
-    private void startDurationTimer() {
-        durationRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (exerciseActive) {
-                    exerciseDuration++;
-                    // Update duration in UI if needed
-                    handler.postDelayed(this, 1000); // Run every second
-                }
-            }
-        };
-
-        handler.postDelayed(durationRunnable, 1000);
-    }
-
-    private void simulateExerciseProgress() {
-        handler = new Handler();
-        exerciseUpdateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (!exerciseActive) {
-                    return;
-                }
-
-                // Simulate rep counting (every 3 seconds)
-                repCount++;
-                tvRepCount.setText(String.valueOf(repCount));
-
-                // Simulate calorie burning
-                caloriesBurned += 12;
-                tvCaloriesBurned.setText(String.valueOf(caloriesBurned));
-
-                // Simulate form accuracy fluctuation
-                if (repCount % 3 == 0) {
-                    // Every 3rd rep, lower accuracy to simulate form deterioration
-                    formAccuracy = Math.max(70, formAccuracy - 5);
-
-                    // Provide haptic feedback for form correction
-                    if (formAccuracy < 85) {
-                        provideHapticFeedback();
-                        showFormCorrectionToast();
-                    }
-                } else if (repCount % 5 == 0) {
-                    // Every 5th rep, improve accuracy to simulate correction
-                    formAccuracy = Math.min(98, formAccuracy + 10);
-                }
-
-                // Update UI
-                tvFormAccuracy.setText(formAccuracy + "%");
-
-                // Make accuracy red if too low
-                if (formAccuracy < 80) {
-                    tvFormAccuracy.setTextColor(getResources().getColor(android.R.color.holo_red_light));
-                } else {
-                    tvFormAccuracy.setTextColor(getResources().getColor(R.color.colorPrimary));
-                }
-
-                // Simulate wearable data
-                wearableController.simulateSensorData(exerciseType);
-
-                // Continue simulation if exercise is still active
-                handler.postDelayed(this, 3000); // Update every 3 seconds
-            }
-        };
-
-        // Start simulation
-        handler.postDelayed(exerciseUpdateRunnable, 3000);
-    }
-
-    private void provideHapticFeedback() {
-        // Check if device has vibrator and haptic feedback is enabled
-        if (vibrator != null && vibrator.hasVibrator() && PreferenceManager.getInstance(this).isHapticFeedbackEnabled()) {
-            // Vibrate for 500 milliseconds
-            vibrator.vibrate(500);
-        }
-    }
-
-    private void showFormCorrectionToast() {
-        // Get feedback based on exercise type
-        String[] formCorrections;
-
-        switch (exerciseType) {
-            case PoseAnalyzer.ExerciseFormResult.EXERCISE_SQUAT:
-                formCorrections = new String[]{
-                        "Keep your back straight",
-                        "Lower your hips more",
-                        "Keep knees aligned with toes",
-                        "Keep your weight on your heels",
-                        "Go deeper in your squat"
-                };
-                break;
-
-            case PoseAnalyzer.ExerciseFormResult.EXERCISE_PUSHUP:
-                formCorrections = new String[]{
-                        "Keep your back straight",
-                        "Lower your chest more",
-                        "Keep elbows close to your body",
-                        "Maintain a steady pace",
-                        "Keep your core engaged"
-                };
-                break;
-
-            default:
-                formCorrections = new String[]{
-                        "Maintain proper form",
-                        "Keep your movements controlled",
-                        "Focus on your technique",
-                        "Breathe steadily through the exercise",
-                        "Engage your core muscles"
-                };
-        }
-
-        // Pick a random correction
-        int index = (int) (Math.random() * formCorrections.length);
-        String correction = formCorrections[index];
-
-        // Update form correction text
-        tvFormCorrection.setText(correction);
-
-        // Also show as toast for visibility
-        Toast.makeText(this, correction, Toast.LENGTH_SHORT).show();
-    }
-
-    private void saveExerciseData() {
-        // Calculate average form accuracy
-        float avgFormAccuracy = formAccuracy; // For prototype, just use current value
-
-        // Create exercise data to save
-        dataManager.saveExercise(
-                exerciseName,
-                exerciseDuration,
-                avgFormAccuracy,
-                repCount,
-                caloriesBurned,
-                new DataManager.DataListener<Exercise>() {
-                    @Override
-                    public void onDataLoaded(Exercise data) {
-                        Log.d(TAG, "Exercise data saved successfully");
-
-                        // Check if the user earned any achievements
-                        checkForAchievements(avgFormAccuracy);
-                    }
-
-                    @Override
-                    public void onDataFailed(String error) {
-                        Log.e(TAG, "Failed to save exercise data: " + error);
-                    }
-                }
-        );
-    }
-
-    private void checkForAchievements(float formAccuracy) {
-        // Check for "Perfect Form" achievement (95%+ accuracy)
-        if (formAccuracy >= 95) {
-            dataManager.saveAchievement(
-                    "Perfect Form",
-                    "Completed an exercise with 95%+ form accuracy",
-                    new DataManager.DataListener<Achievement>() {
-                        @Override
-                        public void onDataLoaded(Achievement data) {
-                            Log.d(TAG, "Achievement saved: Perfect Form");
-                        }
-
-                        @Override
-                        public void onDataFailed(String error) {
-                            Log.e(TAG, "Failed to save achievement: " + error);
-                        }
-                    }
-            );
-        }
-
-        // In a complete implementation, we would check for other achievements
-    }
-
     private void navigateToHome() {
-        Intent intent = new Intent(ActiveExerciseActivity.this, ExerciseSetupActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void navigateToExerciseLibrary() {
-        Intent intent = new Intent(ActiveExerciseActivity.this, ExerciseLibraryActivity.class);
+        Intent intent = new Intent(ExerciseLibraryActivity.this, ExerciseSetupActivity.class);
         startActivity(intent);
         finish();
     }
 
     private void navigateToProgress() {
-        Intent intent = new Intent(ActiveExerciseActivity.this, ProgressActivity.class);
+        Intent intent = new Intent(ExerciseLibraryActivity.this, ProgressActivity.class);
         startActivity(intent);
         finish();
     }
 
-    // PoseListener implementation
-    @Override
-    public void onPoseDetected(Pose pose) {
-        if (!exerciseActive) {
-            return;
+    private void startExercise(Exercise exercise) {
+        Intent intent = new Intent(ExerciseLibraryActivity.this, ExerciseSetupActivity.class);
+        intent.putExtra("EXERCISE_NAME", exercise.getName());
+        startActivity(intent);
+    }
+
+    // RecyclerView Adapter for Exercises
+    private class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
+
+        private List<Exercise> exercises;
+
+        public ExerciseAdapter(List<Exercise> exercises) {
+            this.exercises = exercises;
         }
 
-        // Analyze the pose for exercise form
-        PoseAnalyzer.ExerciseFormResult result = poseAnalyzer.analyzeExerciseForm(pose, exerciseType);
+        @NonNull
+        @Override
+        public ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_exercise, parent, false);
+            return new ExerciseViewHolder(view);
+        }
 
-        // Add to results list
-        formResults.add(result);
+        @Override
+        public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
+            Exercise exercise = exercises.get(position);
+            holder.bind(exercise);
+        }
 
-        // Update UI based on result
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Update form accuracy
-                int newAccuracy = (int) (result.getConfidence() * 100);
-                formAccuracy = (formAccuracy + newAccuracy) / 2; // Smooth changes
-                tvFormAccuracy.setText(formAccuracy + "%");
+        @Override
+        public int getItemCount() {
+            return exercises.size();
+        }
 
-                // Update form correction feedback
-                if (!result.isCorrectForm()) {
-                    tvFormCorrection.setText(result.getFeedbackMessage());
+        class ExerciseViewHolder extends RecyclerView.ViewHolder {
+            private ImageView ivExerciseIcon;
+            private TextView tvExerciseName, tvExerciseCategory, tvDifficulty;
+            private ImageButton btnStartExercise;
 
-                    // Provide haptic feedback for incorrect form
-                    if (formAccuracy < 85) {
-                        provideHapticFeedback();
-                    }
-                }
-
-                // Update UI colors
-                if (formAccuracy < 80) {
-                    tvFormAccuracy.setTextColor(getResources().getColor(android.R.color.holo_red_light));
-                } else {
-                    tvFormAccuracy.setTextColor(getResources().getColor(R.color.colorPrimary));
-                }
+            public ExerciseViewHolder(@NonNull View itemView) {
+                super(itemView);
+                ivExerciseIcon = itemView.findViewById(R.id.ivExerciseIcon);
+                tvExerciseName = itemView.findViewById(R.id.tvExerciseName);
+                tvExerciseCategory = itemView.findViewById(R.id.tvExerciseCategory);
+                tvDifficulty = itemView.findViewById(R.id.tvDifficulty);
+                btnStartExercise = itemView.findViewById(R.id.btnStartExercise);
             }
-        });
-    }
 
-    @Override
-    public void onPoseDetectionFailed(String error) {
-        Log.e(TAG, "Pose detection failed: " + error);
-    }
+            public void bind(final Exercise exercise) {
+                tvExerciseName.setText(exercise.getName());
+                tvExerciseCategory.setText(exercise.getCategory());
 
-    // SensorDataListener implementation
-    @Override
-    public void onMotionDataReceived(MotionPattern motionPattern) {
-        if (!exerciseActive) {
-            return;
-        }
+                // Set difficulty text based on difficulty level
+                int difficulty = exercise.getDifficulty();
+                if (difficulty == Exercise.DIFFICULTY_BEGINNER) {
+                    tvDifficulty.setText("Beginner");
+                } else if (difficulty == Exercise.DIFFICULTY_INTERMEDIATE) {
+                    tvDifficulty.setText("Intermediate");
+                } else if (difficulty == Exercise.DIFFICULTY_ADVANCED) {
+                    tvDifficulty.setText("Advanced");
+                } else {
+                    tvDifficulty.setText("Beginner"); // Default
+                }
 
-        // Process motion data from wearable
-        // In a complete implementation, this would update UI and provide feedback
-    }
+                // Set icon or use default if not available
+                if (exercise.getIconResourceId() != 0) {
+                    ivExerciseIcon.setImageResource(exercise.getIconResourceId());
+                } else {
+                    // Default icon
+                    ivExerciseIcon.setImageResource(R.drawable.ic_exercise_default);
+                }
 
-    @Override
-    public void onHeartRateReceived(float heartRate) {
-        if (!exerciseActive) {
-            return;
-        }
+                // Set click listeners
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startExercise(exercise);
+                    }
+                });
 
-        // Process heart rate data from wearable
-        // In a complete implementation, this would update UI
-    }
-
-    @Override
-    public void onWearableError(String errorMessage) {
-        Log.e(TAG, "Wearable error: " + errorMessage);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Resume exercise tracking if activity was paused
-        if (exerciseActive) {
-            // In a complete implementation, we would resume the camera
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Pause exercise tracking if activity is paused
-        if (exerciseActive) {
-            // In a complete implementation, we would pause the camera
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Clean up resources
-        if (cameraSource != null) {
-            cameraSource.release();
-            cameraSource = null;
-        }
-
-        if (poseAnalyzer != null) {
-            poseAnalyzer.close();
-        }
-
-        // Finish the exercise if still active
-        if (exerciseActive) {
-            finishExercise();
+                btnStartExercise.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startExercise(exercise);
+                    }
+                });
+            }
         }
     }
 }
