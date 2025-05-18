@@ -1,204 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/colorBackground"
-    tools:context=".main.ExerciseSetupActivity">
+    android:background="@android:color/white">
 
-    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="FormFit - Exercise Setup"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:background="#3F51B5"
+        android:gravity="center"
+        android:padding="16dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <Button
-            android:id="@+id/btnMenu"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:text="☰"
-            android:textSize="18sp"
-            android:background="@android:color/transparent"
-            android:textColor="@color/colorText" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="20dp"
+            android:background="#E0E0E0"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Camera View"
+                android:textSize="20sp"
+                android:textColor="#757575" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Position yourself in the frame"
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+        </LinearLayout>
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="FormFit"
-            android:textSize="24sp"
+            android:text="Select Exercise"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/colorText"
-            android:gravity="center" />
+            android:textColor="#212121"
+            android:layout_marginBottom="8dp" />
 
-        <View
-            android:layout_width="48dp"
-            android:layout_height="48dp" />
+        <Spinner
+            android:id="@+id/spinnerExercise"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="20dp"
+            android:background="@android:color/white" />
+
+        <Button
+            android:id="@+id/btnStartExercise"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Start Exercise"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:background="#3F51B5" />
 
     </LinearLayout>
 
-    <!-- Exercise Setup Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@android:color/white">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Exercise Setup"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/colorText"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Camera Preview Placeholder -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:background="@color/colorHint"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Camera View\n(Feature coming soon)"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorTextSecondary"
-                    android:layout_gravity="center"
-                    android:gravity="center" />
-
-            </FrameLayout>
-
-            <!-- Exercise Selection -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Select Exercise"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/colorText"
-                android:layout_marginBottom="8dp" />
-
-            <Spinner
-                android:id="@+id/spinnerExercise"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginBottom="16dp"
-                android:background="@android:drawable/btn_dropdown" />
-
-            <!-- Start Exercise Button -->
-            <Button
-                android:id="@+id/btnStartExercise"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Start Exercise"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="@color/colorPrimary"
-                android:layout_marginBottom="16dp" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- Instructions Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@android:color/white">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Setup Instructions"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/colorText"
-                android:layout_marginBottom="12dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="• Position yourself in front of the camera\n• Ensure good lighting for accurate detection\n• Select your exercise from the dropdown\n• Tap 'Start Exercise' when ready"
-                android:textSize="14sp"
-                android:textColor="@color/colorTextSecondary"
-                android:lineSpacingExtra="4dp" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- Bottom Navigation Placeholder -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="24dp"
-        android:gravity="center">
+        android:layout_height="60dp"
+        android:background="#3F51B5"
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnNav1"
+            android:id="@+id/btnNavHome"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="•"
-            android:textSize="20sp"
-            android:background="@android:color/transparent"
-            android:textColor="@color/colorPrimary" />
+            android:text="Home"
+            android:textColor="@android:color/white"
+            android:background="@android:color/transparent" />
 
         <Button
-            android:id="@+id/btnNav2"
+            android:id="@+id/btnNavLibrary"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="•"
-            android:textSize="20sp"
-            android:background="@android:color/transparent"
-            android:textColor="@color/colorHint" />
+            android:text="Library"
+            android:textColor="@android:color/white"
+            android:background="@android:color/transparent" />
 
         <Button
-            android:id="@+id/btnNav3"
+            android:id="@+id/btnNavProgress"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="•"
-            android:textSize="20sp"
-            android:background="@android:color/transparent"
-            android:textColor="@color/colorHint" />
-
-        <Button
-            android:id="@+id/btnNav4"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="•"
-            android:textSize="20sp"
-            android:background="@android:color/transparent"
-            android:textColor="@color/colorHint" />
+            android:text="Progress"
+            android:textColor="@android:color/white"
+            android:background="@android:color/transparent" />
 
     </LinearLayout>
 
