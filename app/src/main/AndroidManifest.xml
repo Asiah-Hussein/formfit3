@@ -20,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- Main Activity (Splash Screen) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,30 +31,35 @@
             </intent-filter>
         </activity>
 
+        <!-- Login Activity -->
         <activity
             android:name=".main.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Exercise Setup Activity -->
         <activity
             android:name=".main.ExerciseSetupActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Active Exercise Activity -->
         <activity
             android:name=".main.ActiveExerciseActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Exercise Library Activity -->
         <activity
             android:name=".main.ExerciseLibraryActivity"
             android:exported="false" />
 
+        <!-- Progress Activity -->
         <activity
             android:name=".main.ProgressActivity"
             android:exported="false" />
 
-        <!-- Keep LastResortActivity as a fallback -->
+        <!-- Fallback Activity -->
         <activity
             android:name=".LastResortActivity"
             android:exported="false" />
