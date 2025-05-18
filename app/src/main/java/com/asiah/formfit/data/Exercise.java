@@ -4,11 +4,12 @@ package com.asiah.formfit.data;
 import java.util.Date;
 
 public class Exercise {
-    // Add these missing constants
+    // Constants
     public static final int DIFFICULTY_BEGINNER = 1;
     public static final int DIFFICULTY_INTERMEDIATE = 2;
     public static final int DIFFICULTY_ADVANCED = 3;
 
+    // Fields
     private long id;
     private long userId;
     private String name;
@@ -18,13 +19,12 @@ public class Exercise {
     private int calories;
     private Date timestamp;
     private boolean synced;
-    // Add these missing fields
     private int difficulty;
     private int iconResourceId;
     private String category;
 
+    // Constructors
     public Exercise() {
-        // Default constructor
         this.timestamp = new Date();
         this.synced = false;
     }
@@ -36,11 +36,11 @@ public class Exercise {
         this.formAccuracy = formAccuracy;
         this.reps = reps;
         this.calories = calories;
-        this.timestamp = new Date(); // Set to current date by default
-        this.synced = false; // Not synced by default
+        this.timestamp = new Date();
+        this.synced = false;
     }
 
-    // Constructor for exercise library items
+    // Constructor for library items
     public Exercise(String name, String category, String difficulty, int iconResourceId) {
         this.name = name;
         this.category = category;
@@ -49,7 +49,7 @@ public class Exercise {
         this.timestamp = new Date();
     }
 
-    // Helper method to set difficulty from string
+    // Helper methods
     private void setDifficultyFromString(String difficulty) {
         if ("Beginner".equals(difficulty)) {
             this.difficulty = DIFFICULTY_BEGINNER;
@@ -135,7 +135,6 @@ public class Exercise {
         this.synced = synced;
     }
 
-    // Add these getters and setters for the new fields
     public int getDifficulty() {
         return difficulty;
     }

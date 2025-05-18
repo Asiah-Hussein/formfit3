@@ -1,4 +1,3 @@
-// File: app/src/main/java/com/asiah/formfit/main/ExerciseLibraryActivity.java
 package com.asiah.formfit.main;
 
 import android.content.Intent;
@@ -18,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.asiah.formfit.R; // Correct import for R class
+import com.asiah.formfit.R;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import java.util.List;
 
 /**
  * ExerciseLibraryActivity displays the available exercises categorized by body parts.
- * Users can browse, search, and select exercises to start their workouts.
  */
 public class ExerciseLibraryActivity extends AppCompatActivity {
 
@@ -36,8 +34,8 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
     private ImageButton btnHome, btnExercises, btnProgress, btnSettings;
 
     private ExerciseAdapter exerciseAdapter;
-    private List<Exercise> allExercises;
-    private List<Exercise> filteredExercises;
+    private List<ExerciseItem> allExercises;
+    private List<ExerciseItem> filteredExercises;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +43,7 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_exercise_library);
 
         // Initialize UI components
-        rvExercises = findViewById(R.id.rvExercises);
-        etSearch = findViewById(R.id.etSearch);
-        tabLayout = findViewById(R.id.tabLayout);
-        btnHome = findViewById(R.id.btnHome);
-        btnExercises = findViewById(R.id.btnExercises);
-        btnProgress = findViewById(R.id.btnProgress);
-        btnSettings = findViewById(R.id.btnSettings);
+        initViews();
 
         // Generate sample exercises
         generateSampleExercises();
@@ -69,31 +61,39 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
         setupNavigationListeners();
     }
 
+    private void initViews() {
+        rvExercises = findViewById(R.id.rvExercises);
+        etSearch = findViewById(R.id.etSearch);
+        tabLayout = findViewById(R.id.tabLayout);
+        btnHome = findViewById(R.id.btnHome);
+        btnExercises = findViewById(R.id.btnExercises);
+        btnProgress = findViewById(R.id.btnProgress);
+        btnSettings = findViewById(R.id.btnSettings);
+    }
+
     private void generateSampleExercises() {
-        // In a real app, this would load from a database
         allExercises = new ArrayList<>();
 
         // Lower Body Exercises
-        allExercises.add(new Exercise("Squat", "Lower Body", "Beginner", R.drawable.ic_squat));
-        allExercises.add(new Exercise("Lunges", "Lower Body", "Beginner", R.drawable.ic_lunges));
-        allExercises.add(new Exercise("Deadlift", "Lower Body", "Intermediate", R.drawable.ic_deadlift));
-        allExercises.add(new Exercise("Leg Press", "Lower Body", "Beginner", R.drawable.ic_leg_press));
+        allExercises.add(new ExerciseItem("Squat", "Lower Body", "Beginner", R.drawable.ic_squat));
+        allExercises.add(new ExerciseItem("Lunges", "Lower Body", "Beginner", R.drawable.ic_lunges));
+        allExercises.add(new ExerciseItem("Deadlift", "Lower Body", "Intermediate", R.drawable.ic_exercise_default));
 
         // Upper Body Exercises
-        allExercises.add(new Exercise("Push-up", "Upper Body", "Beginner", R.drawable.ic_pushup));
-        allExercises.add(new Exercise("Pull-up", "Upper Body", "Intermediate", R.drawable.ic_pullup));
-        allExercises.add(new Exercise("Bench Press", "Upper Body", "Intermediate", R.drawable.ic_bench_press));
-        allExercises.add(new Exercise("Shoulder Press", "Upper Body", "Intermediate", R.drawable.ic_shoulder_press));
+        allExercises.add(new ExerciseItem("Push-up", "Upper Body", "Beginner", R.drawable.ic_exercise_default));
+        allExercises.add(new ExerciseItem("Pull-up", "Upper Body", "Intermediate", R.drawable.ic_pullup));
+        allExercises.add(new ExerciseItem("Bench Press", "Upper Body", "Intermediate", R.drawable.ic_bench_press));
+        allExercises.add(new ExerciseItem("Shoulder Press", "Upper Body", "Intermediate", R.drawable.ic_shoulder_press));
 
         // Core Exercises
-        allExercises.add(new Exercise("Plank", "Core", "Beginner", R.drawable.ic_plank));
-        allExercises.add(new Exercise("Crunches", "Core", "Beginner", R.drawable.ic_crunches));
-        allExercises.add(new Exercise("Russian Twist", "Core", "Intermediate", R.drawable.ic_russian_twist));
+        allExercises.add(new ExerciseItem("Plank", "Core", "Beginner", R.drawable.ic_plank));
+        allExercises.add(new ExerciseItem("Crunches", "Core", "Beginner", R.drawable.ic_crunches));
+        allExercises.add(new ExerciseItem("Russian Twist", "Core", "Intermediate", R.drawable.ic_russian_twist));
 
         // Cardio Exercises
-        allExercises.add(new Exercise("Jumping Jacks", "Cardio", "Beginner", R.drawable.ic_jumping_jacks));
-        allExercises.add(new Exercise("Burpees", "Cardio", "Advanced", R.drawable.ic_burpees));
-        allExercises.add(new Exercise("Mountain Climbers", "Cardio", "Intermediate", R.drawable.ic_mountain_climbers));
+        allExercises.add(new ExerciseItem("Jumping Jacks", "Cardio", "Beginner", R.drawable.ic_jumping_jacks));
+        allExercises.add(new ExerciseItem("Burpees", "Cardio", "Advanced", R.drawable.ic_burpees));
+        allExercises.add(new ExerciseItem("Mountain Climbers", "Cardio", "Intermediate", R.drawable.ic_mountain_climbers));
 
         // Initialize filtered list with all exercises
         filteredExercises = new ArrayList<>(allExercises);
@@ -108,20 +108,15 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Not needed
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Filter exercises based on search query
                 filterExercises(s.toString(), getSelectedCategory());
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                // Not needed
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -129,26 +124,21 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                // Filter exercises based on selected category
                 filterExercises(etSearch.getText().toString(), getSelectedCategory());
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                // Not needed
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                // Not needed
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
 
     private String getSelectedCategory() {
         int selectedTabPosition = tabLayout.getSelectedTabPosition();
         switch (selectedTabPosition) {
-            case 0: return "All"; // All exercises
+            case 0: return "All";
             case 1: return "Upper Body";
             case 2: return "Lower Body";
             case 3: return "Core";
@@ -160,7 +150,7 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
     private void filterExercises(String query, String category) {
         filteredExercises.clear();
 
-        for (Exercise exercise : allExercises) {
+        for (ExerciseItem exercise : allExercises) {
             boolean matchesQuery = query.isEmpty() ||
                     exercise.getName().toLowerCase().contains(query.toLowerCase());
 
@@ -176,27 +166,10 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
     }
 
     private void setupNavigationListeners() {
-        btnHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateToHome();
-            }
-        });
-
-        // Exercises button is already active
-
-        btnProgress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateToProgress();
-            }
-        });
-
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // For prototype, we won't implement settings
-            }
+        btnHome.setOnClickListener(v -> navigateToHome());
+        btnProgress.setOnClickListener(v -> navigateToProgress());
+        btnSettings.setOnClickListener(v -> {
+            // Settings not implemented for prototype
         });
     }
 
@@ -212,49 +185,38 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
         finish();
     }
 
-    private void startExercise(Exercise exercise) {
+    private void startExercise(ExerciseItem exercise) {
         Intent intent = new Intent(ExerciseLibraryActivity.this, ExerciseSetupActivity.class);
         intent.putExtra("EXERCISE_NAME", exercise.getName());
         startActivity(intent);
     }
 
-    // Exercise model class
-    public static class Exercise {
+    // Simple Exercise model for the library
+    public static class ExerciseItem {
         private String name;
         private String category;
         private String difficulty;
         private int iconResource;
 
-        public Exercise(String name, String category, String difficulty, int iconResource) {
+        public ExerciseItem(String name, String category, String difficulty, int iconResource) {
             this.name = name;
             this.category = category;
             this.difficulty = difficulty;
             this.iconResource = iconResource;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        public String getCategory() {
-            return category;
-        }
-
-        public String getDifficulty() {
-            return difficulty;
-        }
-
-        public int getIconResource() {
-            return iconResource;
-        }
+        public String getName() { return name; }
+        public String getCategory() { return category; }
+        public String getDifficulty() { return difficulty; }
+        public int getIconResource() { return iconResource; }
     }
 
     // RecyclerView Adapter for Exercises
     private class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
-        private List<Exercise> exercises;
+        private List<ExerciseItem> exercises;
 
-        public ExerciseAdapter(List<Exercise> exercises) {
+        public ExerciseAdapter(List<ExerciseItem> exercises) {
             this.exercises = exercises;
         }
 
@@ -268,7 +230,7 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
-            Exercise exercise = exercises.get(position);
+            ExerciseItem exercise = exercises.get(position);
             holder.bind(exercise);
         }
 
@@ -291,18 +253,14 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
                 btnStartExercise = itemView.findViewById(R.id.btnStartExercise);
             }
 
-            public void bind(final Exercise exercise) {
+            public void bind(final ExerciseItem exercise) {
                 tvExerciseName.setText(exercise.getName());
                 tvExerciseCategory.setText(exercise.getCategory());
                 tvDifficulty.setText(exercise.getDifficulty());
                 ivExerciseIcon.setImageResource(exercise.getIconResource());
 
-                btnStartExercise.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startExercise(exercise);
-                    }
-                });
+                itemView.setOnClickListener(v -> startExercise(exercise));
+                btnStartExercise.setOnClickListener(v -> startExercise(exercise));
             }
         }
     }

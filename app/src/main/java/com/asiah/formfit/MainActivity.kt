@@ -12,6 +12,8 @@ class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply splash theme before setting content view
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -32,6 +34,14 @@ class MainActivity : AppCompatActivity() {
                 // Log any errors during navigation
                 Log.e(TAG, "Error navigating to LoginActivity: ${e.message}")
                 e.printStackTrace()
+
+                // As a fallback, try to launch LastResortActivity
+                try {
+                    startActivity(Intent(this, LastResortActivity::class.java))
+                    finish()
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Even fallback failed: ${ex.message}")
+                }
             }
         }, 2000) // 2 second delay
     }
