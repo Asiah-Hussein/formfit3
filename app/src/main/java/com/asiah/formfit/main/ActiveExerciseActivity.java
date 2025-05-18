@@ -1,19 +1,20 @@
 package com.asiah.formfit.main;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Toast;
 import com.asiah.formfit.R;
 
 /**
- * ActiveExerciseActivity handles the active exercise session
- * Simplified version for prototype
+ * ActiveExerciseActivity - Fixed to extend Activity instead of AppCompatActivity
  */
-public class ActiveExerciseActivity extends AppCompatActivity {
+public class ActiveExerciseActivity extends Activity {
 
     private TextView tvExerciseName;
     private TextView tvFormAccuracy;
@@ -25,8 +26,9 @@ public class ActiveExerciseActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
     private boolean isExercising = true;
+    private String exerciseName = "Exercise";
 
-    // Simulated exercise data
+    // Simple exercise data
     private float formAccuracy = 92f;
     private int calories = 148;
     private int reps = 12;
@@ -37,20 +39,13 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_active_exercise);
 
         initViews();
-
-        // Get exercise name from intent
-        String exerciseName = getIntent().getStringExtra("EXERCISE_TYPE");
-        if (exerciseName != null) {
-            tvExerciseName.setText(exerciseName);
-        } else {
-            tvExerciseName.setText("Squat Form");
-        }
-
+        setupExercise();
         setupClickListeners();
-        startExerciseSimulation();
+        startSimulation();
     }
 
     private void initViews() {
+        // Find all views safely
         tvExerciseName = findViewById(R.id.tvExerciseName);
         tvFormAccuracy = findViewById(R.id.tvFormAccuracy);
         tvCaloriesBurned = findViewById(R.id.tvCaloriesBurned);
@@ -61,6 +56,21 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         btnExercises = findViewById(R.id.btnExercises);
         btnProgress = findViewById(R.id.btnProgress);
         btnSettings = findViewById(R.id.btnSettings);
+    }
+
+    private void setupExercise() {
+        // Get exercise name from intent
+        exerciseName = getIntent().getStringExtra("EXERCISE_TYPE");
+        if (exerciseName == null || exerciseName.equals("Select Exercise")) {
+            exerciseName = "Squat Form";
+        }
+
+        // Set initial values
+        tvExerciseName.setText(exerciseName);
+        tvFormAccuracy.setText("92%");
+        tvCaloriesBurned.setText("148");
+        tvRepCount.setText("12");
+        tvFormCorrection.setText("Excellent form! Keep it up!");
     }
 
     private void setupClickListeners() {
@@ -95,33 +105,34 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Settings not implemented for prototype
+                Toast.makeText(ActiveExerciseActivity.this, "Settings coming soon!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void startExerciseSimulation() {
-        // Update stats every 2 seconds
+    private void startSimulation() {
+        Toast.makeText(this, "Starting " + exerciseName + "...", Toast.LENGTH_LONG).show();
+
+        // Update every 3 seconds
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (isExercising) {
-                    updateExerciseStats();
-                    handler.postDelayed(this, 2000);
+                    updateStats();
+                    handler.postDelayed(this, 3000);
                 }
             }
-        }, 2000);
+        }, 3000);
     }
 
-    private void updateExerciseStats() {
-        // Simulate changing form accuracy
-        formAccuracy += (Math.random() - 0.5) * 10;
-        formAccuracy = Math.max(60, Math.min(100, formAccuracy));
+    private void updateStats() {
+        // Simulate changing values
+        formAccuracy += (Math.random() - 0.5) * 6;
+        formAccuracy = Math.max(80, Math.min(98, formAccuracy));
 
-        // Simulate increasing calories and reps
-        if (Math.random() > 0.5) {
-            calories += (int)(Math.random() * 3);
-            reps += (int)(Math.random() * 2);
+        if (Math.random() > 0.4) {
+            calories += (int)(Math.random() * 4) + 1;
+            reps += 1;
         }
 
         // Update UI
@@ -129,22 +140,45 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         tvCaloriesBurned.setText(String.valueOf(calories));
         tvRepCount.setText(String.valueOf(reps));
 
-        // Update feedback message
+        // Update feedback
         if (formAccuracy > 90) {
-            tvFormCorrection.setText("Excellent form! Keep it up!");
-        } else if (formAccuracy > 80) {
-            tvFormCorrection.setText("Good form. Stay focused.");
-        } else if (formAccuracy > 70) {
-            tvFormCorrection.setText("Watch your posture");
+            tvFormCorrection.setText("Excellent form! Keep it up! 💪");
+        } else if (formAccuracy > 85) {
+            tvFormCorrection.setText("Good form. Stay focused! 👍");
         } else {
-            tvFormCorrection.setText("Keep your back straight and knees aligned");
+            tvFormCorrection.setText("Focus on your form ⚠️");
         }
     }
 
     private void finishExercise() {
         isExercising = false;
         handler.removeCallbacksAndMessages(null);
+
+        // Save exercise data
+        saveExerciseData();
+
+        Toast.makeText(this,
+                String.format("Exercise Complete!\n%d reps • %.0f%% form • %d calories",
+                        reps, formAccuracy, calories),
+                Toast.LENGTH_LONG).show();
+
         finish();
+    }
+
+    private void saveExerciseData() {
+        SharedPreferences prefs = getSharedPreferences("FormFitData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // Save session data
+        int totalExercises = prefs.getInt("total_exercises", 0) + 1;
+        editor.putInt("total_exercises", totalExercises);
+        editor.putString("last_exercise", exerciseName);
+        editor.putFloat("last_accuracy", formAccuracy);
+        editor.putInt("last_calories", calories);
+        editor.putInt("last_reps", reps);
+        editor.putLong("last_time", System.currentTimeMillis());
+
+        editor.apply();
     }
 
     private void navigateToHome() {
@@ -170,5 +204,10 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         super.onDestroy();
         isExercising = false;
         handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(this, "Use the close button to finish exercise", Toast.LENGTH_SHORT).show();
     }
 }

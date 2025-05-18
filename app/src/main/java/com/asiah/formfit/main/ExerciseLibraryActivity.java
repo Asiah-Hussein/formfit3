@@ -263,5 +263,6 @@ public class ExerciseLibraryActivity extends AppCompatActivity {
                 btnStartExercise.setOnClickListener(v -> startExercise(exercise));
             }
         }
+
     }
 }
