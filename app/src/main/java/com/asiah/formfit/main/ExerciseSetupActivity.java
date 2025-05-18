@@ -9,7 +9,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.view.PreviewView;
 
 import com.asiah.formfit.R;
 
@@ -28,7 +27,6 @@ public class ExerciseSetupActivity extends AppCompatActivity {
     private Button btnStartExercise;
     private Button btnNav1, btnNav2, btnNav3, btnNav4;
     private Spinner spinnerExercise;
-    private PreviewView previewView;
 
     // Exercise types available in the app
     private String[] exerciseTypes = {
@@ -67,7 +65,6 @@ public class ExerciseSetupActivity extends AppCompatActivity {
         btnNav3 = findViewById(R.id.btnNav3);
         btnNav4 = findViewById(R.id.btnNav4);
         spinnerExercise = findViewById(R.id.spinnerExercise);
-        previewView = findViewById(R.id.previewView);
     }
 
     /**
@@ -175,11 +172,12 @@ public class ExerciseSetupActivity extends AppCompatActivity {
     /**
      * Initialize camera for exercise form detection
      * This method should be called when camera permissions are granted
+     * Note: Camera functionality disabled for prototype
      */
     private void initializeCamera() {
         // TODO: Implement camera initialization
         // This will be used for pose detection during exercises
-        previewView.setVisibility(View.VISIBLE);
+        // Camera functionality disabled for simplified prototype
     }
 
     @Override

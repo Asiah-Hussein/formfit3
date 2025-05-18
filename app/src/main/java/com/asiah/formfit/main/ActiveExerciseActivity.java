@@ -6,13 +6,12 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.asiah.formfit.R;
 
 /**
- * ActiveExerciseActivity handles the active exercise session with real-time feedback
+ * ActiveExerciseActivity handles the active exercise session
+ * Simplified version for prototype
  */
 public class ActiveExerciseActivity extends AppCompatActivity {
 
@@ -40,7 +39,7 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         initViews();
 
         // Get exercise name from intent
-        String exerciseName = getIntent().getStringExtra("EXERCISE_NAME");
+        String exerciseName = getIntent().getStringExtra("EXERCISE_TYPE");
         if (exerciseName != null) {
             tvExerciseName.setText(exerciseName);
         } else {
@@ -48,8 +47,6 @@ public class ActiveExerciseActivity extends AppCompatActivity {
         }
 
         setupClickListeners();
-
-        // Start simulating exercise data
         startExerciseSimulation();
     }
 
@@ -67,12 +64,39 @@ public class ActiveExerciseActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        btnClose.setOnClickListener(v -> finishExercise());
-        btnHome.setOnClickListener(v -> navigateToHome());
-        btnExercises.setOnClickListener(v -> navigateToExerciseLibrary());
-        btnProgress.setOnClickListener(v -> navigateToProgress());
-        btnSettings.setOnClickListener(v -> {
-            // Settings not implemented for prototype
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishExercise();
+            }
+        });
+
+        btnHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToHome();
+            }
+        });
+
+        btnExercises.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToExerciseLibrary();
+            }
+        });
+
+        btnProgress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToProgress();
+            }
+        });
+
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Settings not implemented for prototype
+            }
         });
     }
 
