@@ -1,4 +1,4 @@
-package com.asiah.formfit;
+package com.asiah.formfit.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.view.PreviewView;
+
+import com.asiah.formfit.R;
 
 /**
  * ExerciseSetupActivity - Handles the exercise setup and camera configuration
@@ -124,7 +126,7 @@ public class ExerciseSetupActivity extends AppCompatActivity {
      */
     private void startExercise(String exerciseType) {
         // Create intent to start the active exercise activity
-        Intent intent = new Intent(this, ActiveExerciseActivity.class);
+        Intent intent = new Intent(this, com.asiah.formfit.main.ActiveExerciseActivity.class);
         intent.putExtra("EXERCISE_TYPE", exerciseType);
 
         // Show loading message
@@ -151,17 +153,17 @@ public class ExerciseSetupActivity extends AppCompatActivity {
                 break;
             case 2:
                 // Navigate to active exercise (if available)
-                intent = new Intent(this, ActiveExerciseActivity.class);
+                intent = new Intent(this, com.asiah.formfit.main.ActiveExerciseActivity.class);
                 startActivity(intent);
                 break;
             case 3:
                 // Navigate to progress screen
-                intent = new Intent(this, ProgressActivity.class);
+                intent = new Intent(this, com.asiah.formfit.main.ProgressActivity.class);
                 startActivity(intent);
                 break;
             case 4:
                 // Navigate to exercise library
-                intent = new Intent(this, ExerciseLibraryActivity.class);
+                intent = new Intent(this, com.asiah.formfit.main.ExerciseLibraryActivity.class);
                 startActivity(intent);
                 break;
             default:
@@ -185,14 +187,14 @@ public class ExerciseSetupActivity extends AppCompatActivity {
         super.onResume();
         // Reset navigation highlights
         resetNavigationHighlights();
-        btnNav1.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
+        btnNav1.setTextColor(getResources().getColor(R.color.colorPrimary, null));
     }
 
     /**
      * Reset all navigation button highlights
      */
     private void resetNavigationHighlights() {
-        int defaultColor = getResources().getColor(android.R.color.darker_gray);
+        int defaultColor = getResources().getColor(R.color.colorHint, null);
         btnNav1.setTextColor(defaultColor);
         btnNav2.setTextColor(defaultColor);
         btnNav3.setTextColor(defaultColor);
