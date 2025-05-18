@@ -1,38 +1,43 @@
-// File: app/src/main/java/com/asiah/formfit/main/ExerciseSetupActivity.java
-package com.asiah.formfit.main;
+package com.asiah.formfit;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.asiah.formfit.R; // Correct import for R class
+import androidx.camera.view.PreviewView;
 
 /**
- * ExerciseSetupActivity handles camera preview and prepares for exercise recording.
- * It allows users to position themselves correctly before starting the exercise.
+ * ExerciseSetupActivity - Handles the exercise setup and camera configuration
+ * This activity allows users to select an exercise type and configure camera settings
+ * before starting their workout session.
+ *
+ * @author Asiah Abdisalam Hussein
+ * @version 1.0
  */
 public class ExerciseSetupActivity extends AppCompatActivity {
 
-    private static final int CAMERA_PERMISSION_REQUEST = 100;
-
-    private FrameLayout cameraPreviewContainer;
+    // UI Components
+    private Button btnMenu;
     private Button btnStartExercise;
-    private ImageButton btnHome, btnExercises, btnProgress, btnSettings, btnMenu;
+    private Button btnNav1, btnNav2, btnNav3, btnNav4;
+    private Spinner spinnerExercise;
+    private PreviewView previewView;
 
-    // Camera handling components would be initialized here in a complete implementation
-    // private CameraSource cameraSource;
-    // private CameraPreview cameraPreview;
+    // Exercise types available in the app
+    private String[] exerciseTypes = {
+            "Select Exercise",
+            "Squats",
+            "Push-ups",
+            "Lunges",
+            "Bicep Curls",
+            "Shoulder Press",
+            "Deadlifts"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,145 +45,157 @@ public class ExerciseSetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_exercise_setup);
 
         // Initialize UI components
-        cameraPreviewContainer = findViewById(R.id.cameraPreviewContainer);
-        btnStartExercise = findViewById(R.id.btnStartExercise);
-        btnHome = findViewById(R.id.btnHome);
-        btnExercises = findViewById(R.id.btnExercises);
-        btnProgress = findViewById(R.id.btnProgress);
-        btnSettings = findViewById(R.id.btnSettings);
+        initializeViews();
+
+        // Setup exercise spinner
+        setupExerciseSpinner();
+
+        // Setup click listeners
+        setupClickListeners();
+    }
+
+    /**
+     * Initialize all UI components by finding them by their IDs
+     */
+    private void initializeViews() {
         btnMenu = findViewById(R.id.btnMenu);
+        btnStartExercise = findViewById(R.id.btnStartExercise);
+        btnNav1 = findViewById(R.id.btnNav1);
+        btnNav2 = findViewById(R.id.btnNav2);
+        btnNav3 = findViewById(R.id.btnNav3);
+        btnNav4 = findViewById(R.id.btnNav4);
+        spinnerExercise = findViewById(R.id.spinnerExercise);
+        previewView = findViewById(R.id.previewView);
+    }
 
-        // Check for camera permission
-        if (hasCameraPermission()) {
-            setupCamera();
-        } else {
-            requestCameraPermission();
-        }
+    /**
+     * Setup the exercise type spinner with available exercise options
+     */
+    private void setupExerciseSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                exerciseTypes
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerExercise.setAdapter(adapter);
+    }
 
-        // Set up click listeners
+    /**
+     * Setup click listeners for all interactive components
+     */
+    private void setupClickListeners() {
+        // Menu button listener
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: Implement menu functionality
+                Toast.makeText(ExerciseSetupActivity.this, "Menu clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Start exercise button listener
         btnStartExercise.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startExerciseTracking();
+                String selectedExercise = spinnerExercise.getSelectedItem().toString();
+
+                if (selectedExercise.equals("Select Exercise")) {
+                    Toast.makeText(ExerciseSetupActivity.this,
+                            "Please select an exercise first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Start the selected exercise
+                startExercise(selectedExercise);
             }
         });
 
-        btnExercises.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateToExerciseLibrary();
-            }
-        });
-
-        btnProgress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateToProgress();
-            }
-        });
+        // Navigation button listeners
+        btnNav1.setOnClickListener(v -> navigateToSection(1));
+        btnNav2.setOnClickListener(v -> navigateToSection(2));
+        btnNav3.setOnClickListener(v -> navigateToSection(3));
+        btnNav4.setOnClickListener(v -> navigateToSection(4));
     }
 
-    private boolean hasCameraPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED;
+    /**
+     * Start the selected exercise by navigating to the active exercise screen
+     * @param exerciseType The type of exercise selected by the user
+     */
+    private void startExercise(String exerciseType) {
+        // Create intent to start the active exercise activity
+        Intent intent = new Intent(this, ActiveExerciseActivity.class);
+        intent.putExtra("EXERCISE_TYPE", exerciseType);
+
+        // Show loading message
+        Toast.makeText(this, "Starting " + exerciseType + "...", Toast.LENGTH_SHORT).show();
+
+        // Start the activity
+        startActivity(intent);
+
+        // Add transition animation (optional)
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
-    private void requestCameraPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.CAMERA},
-                CAMERA_PERMISSION_REQUEST
-        );
-    }
+    /**
+     * Handle navigation between different sections of the app
+     * @param section The section number to navigate to
+     */
+    private void navigateToSection(int section) {
+        Intent intent;
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == CAMERA_PERMISSION_REQUEST) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setupCamera();
-            } else {
-                Toast.makeText(this, getString(R.string.camera_permission_required), Toast.LENGTH_LONG).show();
-                finish(); // Close activity if permission is denied
-            }
+        switch (section) {
+            case 1:
+                // Already on exercise setup
+                Toast.makeText(this, "Already on Exercise Setup", Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+                // Navigate to active exercise (if available)
+                intent = new Intent(this, ActiveExerciseActivity.class);
+                startActivity(intent);
+                break;
+            case 3:
+                // Navigate to progress screen
+                intent = new Intent(this, ProgressActivity.class);
+                startActivity(intent);
+                break;
+            case 4:
+                // Navigate to exercise library
+                intent = new Intent(this, ExerciseLibraryActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                Toast.makeText(this, "Section not available", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
-    private void setupCamera() {
-        // In a complete implementation, this would initialize the camera
-        // and set up pose detection. For prototype purposes, we'll simulate this.
-
-        Toast.makeText(this, "Camera initialized", Toast.LENGTH_SHORT).show();
-
-        // This would normally be where you:
-        // 1. Initialize the camera source with pose detection
-        // 2. Create a camera preview surface
-        // 3. Attach it to the container
-
-        /*
-        // Example code for actual implementation:
-        cameraSource = new CameraSource.Builder(this, poseDetector)
-                .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                .setRequestedPreviewSize(640, 480)
-                .setRequestedFps(30.0f)
-                .build();
-
-        cameraPreview = new CameraPreview(this, cameraSource);
-        cameraPreviewContainer.addView(cameraPreview);
-        */
-    }
-
-    private void startExerciseTracking() {
-        // In a complete implementation, this would start the TensorFlow model
-        // and transition to the active exercise screen
-
-        // For prototype, we'll just navigate to the next screen
-        Intent intent = new Intent(ExerciseSetupActivity.this, ActiveExerciseActivity.class);
-        // You could pass selected exercise info as extras here
-        intent.putExtra("EXERCISE_NAME", "Squat");
-        startActivity(intent);
-    }
-
-    private void navigateToExerciseLibrary() {
-        Intent intent = new Intent(ExerciseSetupActivity.this, ExerciseLibraryActivity.class);
-        startActivity(intent);
-    }
-
-    private void navigateToProgress() {
-        Intent intent = new Intent(ExerciseSetupActivity.this, ProgressActivity.class);
-        startActivity(intent);
+    /**
+     * Initialize camera for exercise form detection
+     * This method should be called when camera permissions are granted
+     */
+    private void initializeCamera() {
+        // TODO: Implement camera initialization
+        // This will be used for pose detection during exercises
+        previewView.setVisibility(View.VISIBLE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // In a complete implementation, you would start the camera here
-        // if (hasCameraPermission() && cameraPreview != null) {
-        //     try {
-        //         cameraPreview.start();
-        //     } catch (IOException e) {
-        //         Log.e("CAMERA", "Could not start camera", e);
-        //     }
-        // }
+        // Reset navigation highlights
+        resetNavigationHighlights();
+        btnNav1.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // In a complete implementation, you would stop the camera here
-        // if (cameraPreview != null) {
-        //     cameraPreview.stop();
-        // }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // In a complete implementation, you would release resources here
-        // if (cameraSource != null) {
-        //     cameraSource.release();
-        //     cameraSource = null;
-        // }
+    /**
+     * Reset all navigation button highlights
+     */
+    private void resetNavigationHighlights() {
+        int defaultColor = getResources().getColor(android.R.color.darker_gray);
+        btnNav1.setTextColor(defaultColor);
+        btnNav2.setTextColor(defaultColor);
+        btnNav3.setTextColor(defaultColor);
+        btnNav4.setTextColor(defaultColor);
     }
 }
