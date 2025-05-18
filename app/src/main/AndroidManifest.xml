@@ -22,7 +22,7 @@
 
         <!-- Main Activity (Splash Screen) -->
         <activity
-            android:name=".MainActivity"
+            android:name="com.asiah.formfit.MainActivity"
             android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -33,35 +33,35 @@
 
         <!-- Login Activity -->
         <activity
-            android:name=".main.LoginActivity"
+            android:name="com.asiah.formfit.main.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Exercise Setup Activity -->
         <activity
-            android:name=".main.ExerciseSetupActivity"
+            android:name="com.asiah.formfit.main.ExerciseSetupActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <!-- Active Exercise Activity -->
         <activity
-            android:name=".main.ActiveExerciseActivity"
+            android:name="com.asiah.formfit.main.ActiveExerciseActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <!-- Exercise Library Activity -->
         <activity
-            android:name=".main.ExerciseLibraryActivity"
+            android:name="com.asiah.formfit.main.ExerciseLibraryActivity"
             android:exported="false" />
 
         <!-- Progress Activity -->
         <activity
-            android:name=".main.ProgressActivity"
+            android:name="com.asiah.formfit.main.ProgressActivity"
             android:exported="false" />
 
         <!-- Fallback Activity -->
         <activity
-            android:name=".LastResortActivity"
+            android:name="com.asiah.formfit.LastResortActivity"
             android:exported="false" />
 
     </application>
