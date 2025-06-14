@@ -24,16 +24,6 @@ A mobile application that provides real-time exercise form analysis using AI-pow
 3. Sync Gradle dependencies
 4. Run on emulator or physical device (API level 24+)
 
-## Project Structure
-app/
-├── main/java/com/asiah/formfit/
-│   ├── main/              # Core activities
-│   ├── data/              # Data models & database
-│   ├── adapters/          # RecyclerView adapters
-│   ├── utils/             # Utility classes
-│   └── wearable/          # Sensor integration
-└── res/                   # Layouts and resources
-
 ## Key Components
 * **Motion Analysis**: Pattern detection algorithm for form evaluation
 * **Database Helper**: SQLite implementation for exercise tracking
